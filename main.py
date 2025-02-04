@@ -4,7 +4,9 @@ import requests
 from uuid import uuid4
 import json
 import os
-
+from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives import hashes
 
 if __name__ == '__main__':
     # Creating a Web App
@@ -75,17 +77,7 @@ if __name__ == '__main__':
         return render_template('wallet_page.html')
 
 
-    # Path to the wallet.json file
     WALLET_FILE = 'wallet.json'
-
-
-    def load_wallet():
-        """Load the wallet data from wallet.json."""
-        if os.path.exists(WALLET_FILE):
-            with open(WALLET_FILE, 'r') as file:
-                return json.load(file)
-        return {}
-
 
     def save_wallet(public_key, private_key):
         """Save the wallet data to wallet.json."""
@@ -96,49 +88,61 @@ if __name__ == '__main__':
         with open(WALLET_FILE, 'w') as file:
             json.dump(wallet_data, file)
 
+
+    def load_wallet():
+        """Load the wallet data from wallet.json."""
+        if os.path.exists(WALLET_FILE):
+            try:
+                with open(WALLET_FILE, 'r') as file:
+                    data = json.load(file)
+                    return data
+            except json.JSONDecodeError:
+                print("Error: Corrupt wallet.json file")
+                return None  # Handle corruption gracefully
+        return None  # If file doesn't exist
+
+
     @app.route('/get_wallet', methods=['GET'])
     def get_wallet():
         """Endpoint to retrieve the wallet keys."""
-        try:
-            # Load wallet data
-            wallet_data = load_wallet()
+        wallet_data = load_wallet()
 
-            # Check if wallet.json exists and is not empty
-            if not wallet_data:
-                # If wallet.json doesn't exist or is empty, initialize it with empty keys
-                wallet_data = {'public_key': '', 'private_key': ''}
-                save_wallet(wallet_data['public_key'], wallet_data['private_key'])
-
-            # Validate that both keys exist in the wallet data
-            if 'public_key' not in wallet_data or 'private_key' not in wallet_data:
-                # If keys are missing, indicate that no keys are generated
-                wallet_data = {'public_key': 'No public key generated', 'private_key': 'No private key generated'}
-                save_wallet(wallet_data['public_key'], wallet_data['private_key'])
-
-            return jsonify(wallet_data)
-
-        except Exception as e:
-            # Handle any unexpected errors (e.g., file corruption)
-            print(f"Error loading wallet: {e}")
+        if not wallet_data or 'public_key' not in wallet_data or 'private_key' not in wallet_data:
             return jsonify({
-                'error': 'Unable to load wallet data',
                 'public_key': 'No public key generated',
                 'private_key': 'No private key generated'
-            }), 500
+            }), 404
+
+        return jsonify(wallet_data)
+
 
     @app.route('/generate_wallet', methods=['POST'])
     def generate_wallet():
-        """Endpoint to generate and save a new key pair."""
-        # Example key generation (replace with actual cryptographic logic)
-        public_key = str(uuid4()).replace('-', '')
-        private_key = str(uuid4()).replace('-', '')
+        """Generates a new ECDSA key pair and saves it to wallet.json."""
+        if load_wallet():  # Prevent overwriting an existing wallet
+            return jsonify({'error': 'Wallet already exists. Use GET /get_wallet'}), 400
 
-        # Save the new keys to wallet.json
-        save_wallet(public_key, private_key)
+        private_key = ec.generate_private_key(ec.SECP256K1())
+        public_key = private_key.public_key()
+
+        # Serialize keys
+        private_pem = private_key.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=serialization.NoEncryption()
+        ).decode()
+
+        public_pem = public_key.public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo
+        ).decode()
+
+        # Save to wallet.json
+        save_wallet(public_pem, private_pem)
 
         return jsonify({
-            'public_key': public_key,
-            'private_key': private_key
+            'public_key': public_pem,
+            'private_key': private_pem
         })
 
 
@@ -183,16 +187,51 @@ if __name__ == '__main__':
             response = {'message': 'Joe we have a problem, the blockchain is not valid.'}
         return jsonify(response), 200
 
+    def sign_transaction(private_key_pem, transaction):
+        """Signs the transaction using the sender's private key."""
+        private_key = serialization.load_pem_private_key(
+            private_key_pem.encode(), password=None
+        )
+
+        transaction_str = json.dumps(transaction, sort_keys=True).encode()
+        signature = private_key.sign(transaction_str, ec.ECDSA(hashes.SHA256()))
+
+        return signature.hex()
+
+
+    def verify_signature(public_key_pem, transaction, signature):
+        """Verifies that the transaction was signed by the sender."""
+        public_key_pem = serialization.load_pem_public_key(public_key_pem.encode())
+
+        transaction_str = json.dumps(transaction, sort_keys=True).encode()
+        try:
+            public_key_pem.verify(bytes.fromhex(signature), transaction_str, ec.ECDSA(hashes.SHA256()))
+            return True  # Signature is valid
+        except:
+            return False  # Invalid signature
+
 
     @app.route('/add_transaction', methods=['POST'])
     def add_transaction():
-        json = request.get_json()
-        transaction_keys = ['sender', 'receiver', 'amount']
-        if not all (key in json for key in transaction_keys):
-            return 'Some elements of the transaction are missing', 400
-        index = blockchain.add_transaction(json['sender'], json['receiver'], json['amount'])
-        response = {'message': f'This transaction will be added to block {index}'}
-        return jsonify(response), 201
+        json_data = request.get_json()
+        required_keys = ['sender', 'receiver', 'amount', 'signature']
+
+        if not all(key in json_data for key in required_keys):
+            return jsonify({'error': 'Missing transaction fields'}), 400
+
+        sender = json_data['sender']
+        receiver = json_data['receiver']
+        amount = json_data['amount']
+        signature = json_data['signature']
+
+        # Verify the signature
+        transaction_data = {'sender': sender, 'receiver': receiver, 'amount': amount}
+        if not verify_signature(sender, transaction_data, signature):
+            return jsonify({'error': 'Invalid signature!'}), 400
+
+        # If valid, add to blockchain
+        index = blockchain.add_transaction(sender, receiver, amount, signature)
+        return jsonify({'message': f'This transaction will be added to block {index}'}), 201
 
 
     @app.route('/get_transactions', methods=['GET'])

@@ -1,5 +1,6 @@
 {
   "sender": "",
   "receiver": "",
-  "amount": ""
+  "amount": "",
+  "signature": ""
 }
