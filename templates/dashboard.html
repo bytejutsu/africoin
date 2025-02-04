@@ -43,10 +43,22 @@
 </div>
 
 <script>
+    const chainContainer = document.getElementById('chain');
+    const poolContainer = document.getElementById('pool-list');
+
+
+    // Function to scroll to the right (end) of the container
+    function scrollToEndChainContainer() {
+        chainContainer.scrollLeft = chainContainer.scrollWidth;
+    }
+
+    function scrollToEndPoolContainer() {
+        poolContainer.scrollLeft = poolContainer.scrollWidth;
+    }
+
     async function fetchTransactions() {
     const response = await fetch('/get_transactions');
     const data = await response.json();
-    const poolContainer = document.getElementById('pool-list');
     poolContainer.innerHTML = ''; // Clear previous content
 
     data.transactions.forEach(tx => {
@@ -58,13 +70,15 @@
                 <p><strong>Amount:</strong> ${tx.amount}</p>
             `;
             poolContainer.appendChild(txElement);
+
+            // Scroll to the right after adding the new tx
+            scrollToEndPoolContainer();
         });
     }
 
     async function fetchBlockchain() {
     const response = await fetch('/get_chain');
     const data = await response.json();
-    const chainContainer = document.getElementById('chain');
     chainContainer.innerHTML = ''; // Clear existing blocks
 
     data.chain.forEach(block => {
@@ -78,6 +92,9 @@
                 <p><strong>Transactions:</strong> ${block.transactions.length}</p>
             `;
             chainContainer.appendChild(blockElement);
+
+            // Scroll to the right after adding the new block
+            scrollToEndChainContainer();
         });
     }
 
