@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, redirect, jsonify, session
 import requests
 from uuid import uuid4
 import json
+import os
 
 
 if __name__ == '__main__':
@@ -68,6 +69,77 @@ if __name__ == '__main__':
     def nodes_page():
         return render_template('nodes_page.html')
 
+
+    @app.route('/wallet_page', methods=['GET'])
+    def wallet_page():
+        return render_template('wallet_page.html')
+
+
+    # Path to the wallet.json file
+    WALLET_FILE = 'wallet.json'
+
+
+    def load_wallet():
+        """Load the wallet data from wallet.json."""
+        if os.path.exists(WALLET_FILE):
+            with open(WALLET_FILE, 'r') as file:
+                return json.load(file)
+        return {}
+
+
+    def save_wallet(public_key, private_key):
+        """Save the wallet data to wallet.json."""
+        wallet_data = {
+            'public_key': public_key,
+            'private_key': private_key
+        }
+        with open(WALLET_FILE, 'w') as file:
+            json.dump(wallet_data, file)
+
+    @app.route('/get_wallet', methods=['GET'])
+    def get_wallet():
+        """Endpoint to retrieve the wallet keys."""
+        try:
+            # Load wallet data
+            wallet_data = load_wallet()
+
+            # Check if wallet.json exists and is not empty
+            if not wallet_data:
+                # If wallet.json doesn't exist or is empty, initialize it with empty keys
+                wallet_data = {'public_key': '', 'private_key': ''}
+                save_wallet(wallet_data['public_key'], wallet_data['private_key'])
+
+            # Validate that both keys exist in the wallet data
+            if 'public_key' not in wallet_data or 'private_key' not in wallet_data:
+                # If keys are missing, indicate that no keys are generated
+                wallet_data = {'public_key': 'No public key generated', 'private_key': 'No private key generated'}
+                save_wallet(wallet_data['public_key'], wallet_data['private_key'])
+
+            return jsonify(wallet_data)
+
+        except Exception as e:
+            # Handle any unexpected errors (e.g., file corruption)
+            print(f"Error loading wallet: {e}")
+            return jsonify({
+                'error': 'Unable to load wallet data',
+                'public_key': 'No public key generated',
+                'private_key': 'No private key generated'
+            }), 500
+
+    @app.route('/generate_wallet', methods=['POST'])
+    def generate_wallet():
+        """Endpoint to generate and save a new key pair."""
+        # Example key generation (replace with actual cryptographic logic)
+        public_key = str(uuid4()).replace('-', '')
+        private_key = str(uuid4()).replace('-', '')
+
+        # Save the new keys to wallet.json
+        save_wallet(public_key, private_key)
+
+        return jsonify({
+            'public_key': public_key,
+            'private_key': private_key
+        })
 
 
     @app.route('/')

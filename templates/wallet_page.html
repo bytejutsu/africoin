@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-lg">
+    <h1 class="text-2xl font-bold mb-4">Your Africoin Wallet</h1>
+
+    <!-- Public Key Field -->
+    <div class="mb-4">
+        <label for="public_key" class="block text-sm font-medium text-gray-700">Public Key</label>
+        <input type="text" id="public_key" readonly class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm">
+    </div>
+
+    <!-- Private Key Field -->
+    <div class="mb-4">
+        <label for="private_key" class="block text-sm font-medium text-gray-700">Private Key</label>
+        <input type="text" id="private_key" readonly class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm">
+    </div>
+
+    <!-- Generate Key Pair Button -->
+    <button id="generate_keys" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+        Generate Key Pair
+    </button>
+</div>
+
+<script>
+    // Function to load keys from wallet.json
+    function loadKeys() {
+        fetch('/get_wallet')
+            .then(response => response.json())
+            .then(data => {
+                if (data.public_key && data.private_key) {
+                    document.getElementById('public_key').value = data.public_key;
+                    document.getElementById('private_key').value = data.private_key;
+                } else {
+                    document.getElementById('public_key').value = 'No public key found';
+                    document.getElementById('private_key').value = 'No private key found';
+                }
+            })
+            .catch(error => console.error('Error loading keys:', error));
+    }
+
+    // Function to generate and save new key pair
+    function generateKeys() {
+        fetch('/generate_wallet', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.public_key && data.private_key) {
+                    document.getElementById('public_key').value = data.public_key;
+                    document.getElementById('private_key').value = data.private_key;
+                    alert('New key pair generated and saved!');
+                }
+            })
+            .catch(error => console.error('Error generating keys:', error));
+    }
+
+    // Load keys when the page loads
+    document.addEventListener('DOMContentLoaded', loadKeys);
+
+    // Add event listener to the Generate Key Pair button
+    document.getElementById('generate_keys').addEventListener('click', generateKeys);
+</script>
+{% endblock %}
