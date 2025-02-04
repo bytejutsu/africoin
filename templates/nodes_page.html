@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-lg">
+    <h1 class="text-2xl font-bold mb-4">Africoin Blockchain Nodes</h1>
+    <ul id="node-list" class="mb-6"></ul>
+    <input type="text" id="new-node" placeholder="Enter node URL" class="p-2 border rounded mb-4">
+    <button onclick="addNode()" class="bg-blue-600 text-white p-2 rounded">Add Node</button>
+</div>
+
+<script>
+    // Fetch nodes from the server and display them
+    async function loadNodes() {
+        const response = await fetch('/nodes');
+        const data = await response.json();
+        const nodeList = document.getElementById('node-list');
+        nodeList.innerHTML = ''; // Clear the list before adding new nodes
+
+        data.nodes.forEach(node => {
+            const li = document.createElement('li');
+            li.textContent = node;
+            nodeList.appendChild(li);
+        });
+    }
+
+    // Add a new node
+    async function addNode() {
+        const newNodeInput = document.getElementById('new-node');
+        const newNode = newNodeInput.value.trim();
+
+        if (newNode) {
+            await fetch('/connect_node', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ nodes: [newNode] })
+            });
+
+            newNodeInput.value = ''; // Clear input field
+            loadNodes(); // Reload the node list
+        }
+    }
+
+    // Initial load of nodes
+    loadNodes();
+</script>
+{% endblock %}

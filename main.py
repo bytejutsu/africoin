@@ -2,6 +2,8 @@ from africoin import Blockchain
 from flask import Flask, render_template, request, redirect, jsonify, session
 import requests
 from uuid import uuid4
+import json
+
 
 if __name__ == '__main__':
     # Creating a Web App
@@ -14,6 +16,58 @@ if __name__ == '__main__':
 
     # Creating a Blockchain
     blockchain = Blockchain()
+
+    NODES_FILE = 'nodes.json'
+
+    def load_nodes():
+        try:
+            with open(NODES_FILE, 'r') as file:
+                data = json.load(file)
+                return data if isinstance(data, list) else []  # Ensure it's a list
+        except FileNotFoundError:
+            return []  # Return an empty list if the file doesn't exist
+
+    def save_nodes(nodes):
+        with open(NODES_FILE, 'w') as file:
+            json.dump(nodes, file)
+
+
+    @app.route('/connect_node', methods=['POST'])
+    def connect_node():
+        json_data = request.get_json()
+        nodes = json_data.get('nodes')
+
+        if not nodes:
+            return jsonify({'error': 'No nodes provided'}), 400
+
+        # Load existing nodes from the file
+        current_nodes = load_nodes()
+
+        for node in nodes:
+            if node not in current_nodes:
+                current_nodes.append(node)
+
+        # Save the updated list of nodes back to the file
+        save_nodes(current_nodes)
+
+        response = {
+            'message': 'All nodes are now connected. The Africoin Blockchain now contains the following nodes:',
+            'total_nodes': current_nodes
+        }
+        return jsonify(response), 201
+
+
+    @app.route('/nodes', methods=['GET'])
+    def get_nodes():
+        # Load nodes from the file and return them
+        nodes = load_nodes()
+        return jsonify({'nodes': nodes})
+
+
+    @app.route('/nodes_page', methods=['GET'])
+    def nodes_page():
+        return render_template('nodes_page.html')
+
 
 
     @app.route('/')
@@ -76,19 +130,19 @@ if __name__ == '__main__':
     # Part 3 - Decentralizing our Blockchain
 
     # Connecting new nodes
-    @app.route('/connect_node', methods=['POST'])
-    def connect_node():
-        json = request.get_json()
-        nodes = json.get('nodes')
-        if nodes is None:
-            return 'No node', 400
-        for node in nodes:
-            blockchain.add_node(node)
-        response = {
-            'message': 'All the nodes are now connected. The Africoin Blockchain now contains the following nodes' ,
-            'total_nodes': list(blockchain.nodes)
-        }
-        return jsonify(response), 201
+    # @app.route('/connect_node', methods=['POST'])
+    # def connect_node():
+    #     json = request.get_json()
+    #     nodes = json.get('nodes')
+    #     if nodes is None:
+    #         return 'No node', 400
+    #     for node in nodes:
+    #         blockchain.add_node(node)
+    #     response = {
+    #         'message': 'All the nodes are now connected. The Africoin Blockchain now contains the following nodes' ,
+    #         'total_nodes': list(blockchain.nodes)
+    #     }
+    #     return jsonify(response), 201
 
 
     @app.route('/replace_chain', methods=['GET'])
