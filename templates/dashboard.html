@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto p-6">
+    <h1 class="text-3xl font-bold mb-4">Africoin Blockchain Dashboard</h1>
+    <!-- Add Transaction Form -->
+    <div class="mt-6 p-4 border rounded-lg bg-white shadow-md">
+        <h2 class="text-xl font-semibold">Add Transaction</h2>
+        <form id="transactionForm" class="mt-4">
+            <input type="text" id="sender" placeholder="Sender" class="block w-full p-2 border rounded mb-2">
+            <input type="text" id="receiver" placeholder="Receiver" class="block w-full p-2 border rounded mb-2">
+            <input type="number" id="amount" placeholder="Amount" class="block w-full p-2 border rounded mb-2">
+            <button type="submit" class="bg-blue-500 text-white p-2 rounded">Submit Transaction</button>
+        </form>
+    </div>
+
+    <div class="my-6"></div>
+
+    <!-- Transaction Pool Display -->
+    <div id="pool" class="p-4 border rounded-lg bg-gray-100">
+        <h2 class="text-xl font-semibold mb-2">Transaction Pool</h2>
+        <div id="pool-list" class="flex overflow-x-auto space-x-4 p-2">
+            <!-- Pending transactions will be inserted here dynamically -->
+        </div>
+    </div>
+
+    <!-- Mine Block Button -->
+    <div class="flex justify-center">
+        <div class="my-6">
+            <button id="mineBlock" class="bg-green-500 text-white p-4 rounded">Mine Block</button>
+        </div>
+    </div>
+
+    <!-- Blockchain Display -->
+    <div id="blockchain" class="p-4 border rounded-lg bg-gray-100">
+        <h2 class="text-xl font-semibold mb-2">Blockchain</h2>
+        <div id="chain" class="flex overflow-x-auto space-x-4 p-2">
+            <!-- Blocks will be dynamically inserted here -->
+        </div>
+    </div>
+
+
+</div>
+
+<script>
+    async function fetchTransactions() {
+    const response = await fetch('/get_transactions');
+    const data = await response.json();
+    const poolContainer = document.getElementById('pool-list');
+    poolContainer.innerHTML = ''; // Clear previous content
+
+    data.transactions.forEach(tx => {
+            const txElement = document.createElement('div');
+            txElement.className = "min-w-[250px] p-4 bg-white border rounded-lg shadow-lg";
+            txElement.innerHTML = `
+                <p><strong>Sender:</strong> ${tx.sender}</p>
+                <p><strong>Receiver:</strong> ${tx.receiver}</p>
+                <p><strong>Amount:</strong> ${tx.amount}</p>
+            `;
+            poolContainer.appendChild(txElement);
+        });
+    }
+
+    async function fetchBlockchain() {
+    const response = await fetch('/get_chain');
+    const data = await response.json();
+    const chainContainer = document.getElementById('chain');
+    chainContainer.innerHTML = ''; // Clear existing blocks
+
+    data.chain.forEach(block => {
+            const blockElement = document.createElement('div');
+            blockElement.className = "min-w-[250px] p-4 bg-white border rounded-lg shadow-lg";
+            blockElement.innerHTML = `
+                <h3 class="text-lg font-bold">Block #${block.index}</h3>
+                <p><strong>Timestamp:</strong> ${block.timestamp}</p>
+                <p><strong>Proof:</strong> ${block.proof}</p>
+                <p><strong>Prev Hash:</strong> ${block.previous_hash.slice(0, 10)}...</p>
+                <p><strong>Transactions:</strong> ${block.transactions.length}</p>
+            `;
+            chainContainer.appendChild(blockElement);
+        });
+    }
+
+    document.getElementById('transactionForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        fetch('/add_transaction', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                sender: document.getElementById('sender').value,
+                receiver: document.getElementById('receiver').value,
+                amount: document.getElementById('amount').value
+            })
+        }).then(response => response.json()).then(data => alert(data.message));
+    });
+
+    document.getElementById('mineBlock').addEventListener('click', function() {
+        fetch('/mine_block')
+            .then(response => response.json())
+            .then(data => alert(data.message));
+    });
+
+    // Poll transactions every 5 seconds
+    setInterval(fetchTransactions, 5000);
+    fetchTransactions(); // Initial load
+    // Poll blockchain data every 5 seconds
+    setInterval(fetchBlockchain, 5000);
+    fetchBlockchain(); // Initial load
+</script>
+{% endblock %}

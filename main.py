@@ -15,6 +15,11 @@ if __name__ == '__main__':
     # Creating a Blockchain
     blockchain = Blockchain()
 
+
+    @app.route('/')
+    def index():
+        return render_template('dashboard.html')
+
     # Mining a new block
     @app.route('/mine_block', methods=['GET'])
     def mine_block():
@@ -62,6 +67,11 @@ if __name__ == '__main__':
         index = blockchain.add_transaction(json['sender'], json['receiver'], json['amount'])
         response = {'message': f'This transaction will be added to block {index}'}
         return jsonify(response), 201
+
+
+    @app.route('/get_transactions', methods=['GET'])
+    def get_transactions():
+        return jsonify({'transactions': blockchain.transactions}), 200
 
     # Part 3 - Decentralizing our Blockchain
 
