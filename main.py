@@ -1,12 +1,19 @@
+from cryptography.hazmat.backends import default_backend
+
 from africoin import Blockchain
 from flask import Flask, render_template, request, redirect, jsonify, session
 import requests
 from uuid import uuid4
 import json
 import os
-from cryptography.hazmat.primitives.asymmetric import ec
-from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.backends import default_backend
+from cryptography.exceptions import UnsupportedAlgorithm
+from cryptography.hazmat.backends import default_backend
+import base64
+import re
 
 if __name__ == '__main__':
     # Creating a Web App
@@ -187,28 +194,96 @@ if __name__ == '__main__':
             response = {'message': 'Joe we have a problem, the blockchain is not valid.'}
         return jsonify(response), 200
 
-    def sign_transaction(private_key_pem, transaction):
+
+    def get_private_key():
+        """Retrieve the private key from the wallet.json file."""
+        try:
+            with open(WALLET_FILE, "r") as f:
+                key_data = json.load(f)["private_key"]
+            return key_data
+        except Exception as e:
+            print(f"Error retrieving private key: {e}")
+            return None
+
+
+    def sign_transaction(transaction):
         """Signs the transaction using the sender's private key."""
-        private_key = serialization.load_pem_private_key(
-            private_key_pem.encode(), password=None
-        )
+        private_key_pem = get_private_key()
+        if not private_key_pem:
+            return None
 
-        transaction_str = json.dumps(transaction, sort_keys=True).encode()
-        signature = private_key.sign(transaction_str, ec.ECDSA(hashes.SHA256()))
-
-        return signature.hex()
-
-
-    def verify_signature(public_key_pem, transaction, signature):
-        """Verifies that the transaction was signed by the sender."""
-        public_key_pem = serialization.load_pem_public_key(public_key_pem.encode())
+        try:
+            private_key = serialization.load_pem_private_key(
+                private_key_pem.encode(), password=None
+            )
+        except ValueError as e:
+            print("Private key decoding failed:", str(e))
+            return None
+        except UnsupportedAlgorithm as e:
+            print("Unsupported algorithm:", str(e))
+            return None
 
         transaction_str = json.dumps(transaction, sort_keys=True).encode()
         try:
-            public_key_pem.verify(bytes.fromhex(signature), transaction_str, ec.ECDSA(hashes.SHA256()))
-            return True  # Signature is valid
-        except:
-            return False  # Invalid signature
+            signature = private_key.sign(transaction_str, ec.ECDSA(hashes.SHA256()))
+            return signature
+        except Exception as e:
+            print("Signing failed:", str(e))
+            return None
+
+
+    @app.route('/sign_transaction', methods=['POST'])
+    def sign_transaction_route():
+        try:
+            data = request.json
+            sender = data['sender']
+            receiver = data['receiver']
+            amount = data['amount']
+
+            transaction = {"sender": sender, "receiver": receiver, "amount": amount}
+
+            # Sign the transaction
+            signature = sign_transaction(transaction)
+            if signature:
+                signature_b64 = base64.b64encode(signature).decode('utf-8')
+                return jsonify({'signature': signature_b64})
+            else:
+                return jsonify({'error': 'Failed to sign transaction'}), 400
+        except Exception as e:
+            print("Unexpected error:", str(e))
+            return jsonify({'error': str(e)}), 400
+
+
+    def verify_signature(sender, transaction_data, signature_b64):
+        """Verify the signature of the transaction using the sender's public key."""
+
+        # Load the sender's public key from the wallet.json file
+        with open("wallet.json", "r") as f:
+            wallet_data = json.load(f)
+            public_key_pem = wallet_data["public_key"]
+
+        try:
+            # Load the public key from the PEM format
+            public_key = serialization.load_pem_public_key(
+                public_key_pem.encode(), backend=default_backend()
+            )
+
+            # Prepare the transaction data for verification
+            transaction_str = json.dumps(transaction_data, sort_keys=True).encode()
+
+            # Decode the base64 signature
+            signature = base64.b64decode(signature_b64)
+
+            # Verify the signature using the public key
+            public_key.verify(
+                signature,
+                transaction_str,
+                ec.ECDSA(hashes.SHA256())
+            )
+            return True
+        except Exception as e:
+            print(f"Signature verification failed: {e}")
+            return False
 
 
     @app.route('/add_transaction', methods=['POST'])
@@ -226,6 +301,7 @@ if __name__ == '__main__':
 
         # Verify the signature
         transaction_data = {'sender': sender, 'receiver': receiver, 'amount': amount}
+
         if not verify_signature(sender, transaction_data, signature):
             return jsonify({'error': 'Invalid signature!'}), 400
 
