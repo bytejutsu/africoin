@@ -76,7 +76,7 @@
 
             data.transactions.forEach(tx => {
                 const txElement = document.createElement('div');
-                txElement.className = "min-w-[250px] p-4 bg-white border rounded-lg shadow-lg cursor-pointer";
+                txElement.className = "min-w-[250px] p-4 bg-white border rounded-lg shadow-lg cursor-pointer relative";
 
                 // Create individual elements for the transaction
                 txElement.innerHTML = `
@@ -84,7 +84,25 @@
                     <p><strong>Receiver:</strong> <span class="text-xs block truncate w-full">${tx.receiver}</span></p>
                     <p><strong>Amount:</strong> <span class="text-xs block truncate w-full">${tx.amount}</span></p>
                     <p><strong>Signature:</strong> <span class="text-xs block truncate w-full">${tx.signature}</span></p>
+                    <!-- Verify button -->
+                    <button class="verify-btn w-full mt-4 p-2 bg-blue-500 text-white rounded-md">Verify</button>
                 `;
+
+                // Add event listener to the verify button
+                const verifyButton = txElement.querySelector('.verify-btn');
+                verifyButton.addEventListener('click', async (event) => {
+                    event.stopPropagation(); // Prevent the click from triggering the modal
+                    const isValid = await verifyTransaction(tx);
+
+                    // Change background based on validity
+                    if (isValid) {
+                        txElement.classList.add('bg-green-200');
+                        txElement.classList.remove('bg-red-200');
+                    } else {
+                        txElement.classList.add('bg-red-200');
+                        txElement.classList.remove('bg-green-200');
+                    }
+                });
 
                 // Add click event to open modal with transaction details
                 txElement.addEventListener('click', () => {
@@ -99,6 +117,30 @@
             console.error("Error fetching transactions:", error);
         }
     }
+
+    // Function to verify the transaction (dummy validation, replace with actual logic)
+    async function verifyTransaction(transaction) {
+        // Simulate API call to verify the transaction
+        try {
+            const response = await fetch('/verify_transaction', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(transaction)
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to verify transaction");
+            }
+
+            const data = await response.json();
+            return data.isValid; // Assuming the backend returns { isValid: true/false }
+        } catch (error) {
+            console.error("Error verifying transaction:", error);
+            return false;
+        }
+    }
+
+
 
 
 

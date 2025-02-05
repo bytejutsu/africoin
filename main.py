@@ -286,6 +286,28 @@ if __name__ == '__main__':
             return False
 
 
+    @app.route('/verify_transaction', methods=['POST'])
+    def verify_transaction():
+        json_data = request.get_json()
+        required_keys = ['sender', 'receiver', 'amount', 'signature']
+
+        if not all(key in json_data for key in required_keys):
+            return jsonify({'error': 'Missing transaction fields'}), 400
+
+        sender = json_data['sender']
+        receiver = json_data['receiver']
+        amount = json_data['amount']
+        signature = json_data['signature']
+
+        # Here you will verify the signature using the sender's public key
+        # You can use your existing signature verification logic
+        transaction_data = {'sender': sender, 'receiver': receiver, 'amount': amount}
+
+        is_valid = verify_signature(sender, transaction_data, signature)
+
+        return jsonify({'isValid': is_valid})
+
+
     @app.route('/add_transaction', methods=['POST'])
     def add_transaction():
         json_data = request.get_json()
