@@ -39,6 +39,17 @@
         </div>
     </div>
 
+    <!-- Modal (hidden by default) -->
+    <div id="transactionModal" class="fixed inset-0 bg-gray-700 bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-11/12 md:w-1/3">
+            <h3 class="text-lg font-semibold mb-4">Transaction Details</h3>
+            <p><strong>Sender:</strong> <span id="modalSender" class="break-words"></span></p>
+            <p><strong>Receiver:</strong> <span id="modalReceiver" class="break-words"></span></p>
+            <p><strong>Amount:</strong> <span id="modalAmount" class="break-words"></span></p>
+            <p><strong>Signature:</strong> <span id="modalSignature" class="break-words"></span></p>
+            <button id="closeModal" class="mt-4 px-4 py-2 bg-red-500 text-white rounded">Close</button>
+        </div>
+    </div>
 
 </div>
 
@@ -65,7 +76,8 @@
 
             data.transactions.forEach(tx => {
                 const txElement = document.createElement('div');
-                txElement.className = "min-w-[250px] p-4 bg-white border rounded-lg shadow-lg";
+                txElement.className = "min-w-[250px] p-4 bg-white border rounded-lg shadow-lg cursor-pointer";
+
                 // Create individual elements for the transaction
                 txElement.innerHTML = `
                     <p><strong>Sender:</strong> <span class="text-xs block truncate w-full">${tx.sender}</span></p>
@@ -73,6 +85,12 @@
                     <p><strong>Amount:</strong> <span class="text-xs block truncate w-full">${tx.amount}</span></p>
                     <p><strong>Signature:</strong> <span class="text-xs block truncate w-full">${tx.signature}</span></p>
                 `;
+
+                // Add click event to open modal with transaction details
+                txElement.addEventListener('click', () => {
+                    openModal(tx);
+                });
+
                 poolContainer.appendChild(txElement);
             });
 
@@ -81,6 +99,10 @@
             console.error("Error fetching transactions:", error);
         }
     }
+
+
+
+
 
 
     async function fetchBlockchain() {
@@ -179,6 +201,24 @@
             console.error("Error loading wallet:", error);
         }
     }
+
+    // Function to open the modal and show the full transaction details
+    function openModal(transaction) {
+        document.getElementById('modalSender').textContent = transaction.sender;
+        document.getElementById('modalReceiver').textContent = transaction.receiver;
+        document.getElementById('modalAmount').textContent = transaction.amount;
+        document.getElementById('modalSignature').textContent = transaction.signature;
+
+        const modal = document.getElementById('transactionModal');
+        modal.classList.remove('hidden'); // Show the modal
+    }
+
+    // Function to close the modal when the close button is clicked
+    document.getElementById('closeModal').addEventListener('click', () => {
+        const modal = document.getElementById('transactionModal');
+        modal.classList.add('hidden'); // Hide the modal
+    });
+
 
     // Load wallet details when the page loads
     document.addEventListener("DOMContentLoaded", loadWallet);
