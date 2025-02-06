@@ -14,6 +14,8 @@ from cryptography.exceptions import UnsupportedAlgorithm
 from cryptography.hazmat.backends import default_backend
 import base64
 import re
+from flask import send_from_directory
+
 
 if __name__ == '__main__':
     # Creating a Web App
@@ -73,6 +75,26 @@ if __name__ == '__main__':
         nodes = load_nodes()
         return jsonify({'nodes': nodes})
 
+
+    @app.route('/')
+    def index():
+        return render_template('dashboard.html')
+
+
+    @app.route('/blockchain_page')
+    def blockchain_page():
+        # Read the blockchain data from the JSON file
+        try:
+            with open('blockchain.json', 'r') as f:
+                blockchain_data = json.load(f)
+        except FileNotFoundError:
+            blockchain_data = {"chain": []}  # Handle the case where the file does not exist
+        return render_template('blockchain_page.html', blockchain_data=blockchain_data)
+
+
+    @app.route('/download_blockchain')
+    def download_blockchain():
+        return send_from_directory(os.getcwd(), 'blockchain.json', as_attachment=True)
 
     @app.route('/nodes_page', methods=['GET'])
     def nodes_page():
@@ -151,11 +173,6 @@ if __name__ == '__main__':
             'public_key': public_pem,
             'private_key': private_pem
         })
-
-
-    @app.route('/')
-    def index():
-        return render_template('dashboard.html')
 
 
     # Mine a block
@@ -359,22 +376,6 @@ if __name__ == '__main__':
         return jsonify({'transactions': blockchain.transactions}), 200
 
     # Part 3 - Decentralizing our Blockchain
-
-    # Connecting new nodes
-    # @app.route('/connect_node', methods=['POST'])
-    # def connect_node():
-    #     json = request.get_json()
-    #     nodes = json.get('nodes')
-    #     if nodes is None:
-    #         return 'No node', 400
-    #     for node in nodes:
-    #         blockchain.add_node(node)
-    #     response = {
-    #         'message': 'All the nodes are now connected. The Africoin Blockchain now contains the following nodes' ,
-    #         'total_nodes': list(blockchain.nodes)
-    #     }
-    #     return jsonify(response), 201
-
 
     @app.route('/replace_chain', methods=['GET'])
     def replace_chain():
