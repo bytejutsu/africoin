@@ -83,14 +83,14 @@
 
             data.transactions.forEach(tx => {
                 const txElement = document.createElement('div');
-                txElement.className = "min-w-[250px] p-4 bg-white border rounded-lg shadow-lg cursor-pointer relative";
+                txElement.className = "min-w-[250px] w-[250px] p-4 bg-white border rounded-lg shadow-lg";  // Set fixed width
 
                 // Create individual elements for the transaction
                 txElement.innerHTML = `
-                    <p><strong>Sender:</strong> <span class="text-xs block truncate w-full">${tx.sender}</span></p>
-                    <p><strong>Receiver:</strong> <span class="text-xs block truncate w-full">${tx.receiver}</span></p>
-                    <p><strong>Amount:</strong> <span class="text-xs block truncate w-full">${tx.amount}</span></p>
-                    <p><strong>Signature:</strong> <span class="text-xs block truncate w-full">${tx.signature}</span></p>
+                    <p><strong>Sender:</strong> <span class="text-xs block truncate">${tx.sender}</span></p>
+                    <p><strong>Receiver:</strong> <span class="text-xs block truncate">${tx.receiver}</span></p>
+                    <p><strong>Amount:</strong> <span class="text-xs block truncate">${tx.amount}</span></p>
+                    <p><strong>Signature:</strong> <span class="text-xs block truncate">${tx.signature}</span></p>
                     <!-- Verify button -->
                     <button class="verify-btn w-full mt-4 p-2 bg-blue-500 text-white rounded-md">Verify</button>
                 `;
@@ -215,7 +215,13 @@
             body: JSON.stringify({ sender, receiver, amount, signature })
         })
         .then(response => response.json())
-        .then(data => alert(data.message))
+        .then(data => {
+            alert(data.message);
+
+            // Clear receiver and amount fields after successful transaction
+            document.getElementById('receiver').value = '';
+            document.getElementById('amount').value = '';
+        })
         .catch(error => alert("Transaction failed: " + error.message));
     });
 
