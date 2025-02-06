@@ -10,7 +10,16 @@
 
     <nav class="bg-blue-600 text-white p-4">
         <div class="container mx-auto flex items-center justify-between">
-            <a href="/" class="text-xl font-bold">Africoin Blockchain </a>
+            <!-- Globe emoji with Africa in the center -->
+            <div class="flex items-center space-x-2">
+                <span class="font-bold text-3xl"><a href="/">Africoin Blockchain</a></span>
+                <span class="text-3xl">🌍</span>
+            </div>
+            <!-- Copyright and ByteJutsu link at the center -->
+            <div class="text-center flex-1">
+                <span>&copy; 2025 <a href="https://www.bytejutsu.com" target="_blank" class="font-semibold hover:underline">ByteJutsu</a></span>
+            </div>
+            <!-- Navigation Links -->
             <ul class="flex space-x-6">
                 <li><a href="/blockchain_page" class="hover:underline">Blockchain</a></li>
                 <li><a href="/nodes_page" class="hover:underline">Nodes</a></li>
@@ -20,10 +29,10 @@
         </div>
     </nav>
 
-
     <main class="container mx-auto p-6">
         {% block content %}{% endblock %}
     </main>
 
 </body>
 </html>
+

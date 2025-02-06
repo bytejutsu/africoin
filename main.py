@@ -106,6 +106,11 @@ if __name__ == '__main__':
         return render_template('wallet_page.html')
 
 
+    @app.route('/about_page', methods=['GET'])
+    def about_page():
+        return render_template('about_page.html')
+
+
     WALLET_FILE = 'wallet.json'
 
     def save_wallet(public_key, private_key):
