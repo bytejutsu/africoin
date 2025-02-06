@@ -73,6 +73,20 @@ class Blockchain:
         previous_block = self.get_previous_block()
         return previous_block['index'] + 1
 
+    def add_reward_transaction(self, receiver, amount):
+        """Adds a reward transaction without requiring a signature."""
+        transaction = {
+            'sender': 'BLOCK_REWARD',  # Special identifier for reward transactions
+            'receiver': receiver,
+            'amount': amount,
+            'signature': None  # No signature needed for reward transactions
+        }
+        self.transactions.append(transaction)
+
+        # Use get_previous_block() instead of get_last_block()
+        previous_block = self.get_previous_block()
+        return previous_block['index'] + 1  # Return the index where the transaction will be added
+
     def add_node(self, address):
         parsed_url = urlparse(address)
         self.nodes.add(parsed_url.netloc)

@@ -141,12 +141,6 @@
     }
 
 
-
-
-
-
-
-
     async function fetchBlockchain() {
         try {
             const response = await fetch('/get_chain');
@@ -218,12 +212,32 @@
         .catch(error => alert("Transaction failed: " + error.message));
     });
 
-    document.getElementById('mineBlock').addEventListener('click', function() {
-        fetch('/mine_block')
-            .then(response => response.json())
-            .then(data => alert(data.message))
-            .catch(error => alert("Mining failed: " + error.message));
+    document.getElementById('mineBlock').addEventListener('click', async function () {
+        try {
+            // Fetch the miner's public key from wallet.json
+            const walletResponse = await fetch('/get_wallet');
+            if (!walletResponse.ok) throw new Error("Failed to fetch wallet data");
+
+            const walletData = await walletResponse.json();
+            const minerAddress = walletData.public_key; // Extract the public key
+
+            if (!minerAddress) throw new Error("Miner address not found");
+
+            // Send mining request with the miner's address
+            const mineResponse = await fetch('/mine_block', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ miner_address: minerAddress })
+            });
+
+            const data = await mineResponse.json();
+            alert(data.message);
+
+        } catch (error) {
+            alert("Mining failed: " + error.message);
+        }
     });
+
 
     async function loadWallet() {
         try {

@@ -157,23 +157,45 @@ if __name__ == '__main__':
     def index():
         return render_template('dashboard.html')
 
-    # Mining a new block
-    @app.route('/mine_block', methods=['GET'])
+
+    # Mine a block
+    @app.route('/mine_block', methods=['POST'])
     def mine_block():
-        previous_block = blockchain.get_previous_block()
-        previous_proof = previous_block['proof']
-        proof = blockchain.proof_of_work(previous_proof)
-        previous_hash = blockchain.hash(previous_block)
-        blockchain.add_transaction(sender=node_address, receiver='Dhia', amount=1)
-        block = blockchain.create_block(proof, previous_hash)
-        response = {'message': 'Congratulations! you just mined a block',
-                    'index': block['index'],
-                    'timestamp': block['timestamp'],
-                    'proof': block['proof'],
-                    'previous_hash': block['previous_hash'],
-                    'transactions': block['transactions']
-                    }
-        return jsonify(response), 200
+        try:
+            data = request.json
+            miner_address = data.get('miner_address')  # Get miner's address from request
+
+            if not miner_address:
+                return jsonify({'error': 'Miner address is required'}), 400
+
+            previous_block = blockchain.get_previous_block()
+            previous_proof = previous_block['proof']
+            proof = blockchain.proof_of_work(previous_proof)
+            previous_hash = blockchain.hash(previous_block)
+
+            # Add a reward transaction using the new method
+            blockchain.add_reward_transaction(receiver=miner_address, amount=1)
+
+            # Create the new block
+            block = blockchain.create_block(proof, previous_hash)
+
+            # Persist the blockchain to blockchain.json
+            with open('blockchain.json', 'w') as f:
+                json.dump(blockchain.chain, f, indent=4)
+
+            response = {
+                'message': 'Congratulations! You just mined a block',
+                'index': block['index'],
+                'timestamp': block['timestamp'],
+                'proof': block['proof'],
+                'previous_hash': block['previous_hash'],
+                'transactions': block['transactions']
+            }
+
+            return jsonify(response), 200
+
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
 
 
     @app.route('/get_chain', methods=['GET'])
