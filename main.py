@@ -201,8 +201,8 @@ if __name__ == '__main__':
     @app.route('/get_chain', methods=['GET'])
     def get_chain():
         response = {
-            'chain': blockchain.chain,
-            'length': len(blockchain.chain)
+            'chain': blockchain.get_chain(),
+            'length': len(blockchain.get_chain())
         }
         return jsonify(response), 200
 

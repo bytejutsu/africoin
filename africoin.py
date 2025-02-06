@@ -5,15 +5,28 @@ from urllib.parse import urlparse
 
 import requests
 
-
-# Part 1 - Building a Blockchain
 class Blockchain:
 
-    def __init__(self):
-        self.chain = []
+    def __init__(self, blockchain_file='blockchain.json'):
+        self.blockchain_file = blockchain_file
         self.transactions = []
-        self.create_block(proof=1, previous_hash='0')
+        self.load_chain()  # Load the blockchain from the file when the class is initialized
         self.nodes = set()
+
+    def load_chain(self):
+        """Loads the blockchain from the persistent file."""
+        try:
+            with open(self.blockchain_file, 'r') as file:
+                data = json.load(file)
+                self.chain = data
+        except (FileNotFoundError, json.JSONDecodeError):
+            self.chain = []  # If no file exists or there's an error, initialize an empty chain
+            self.create_block(proof=1, previous_hash='0')  # Create the first block if the chain is empty
+
+    def save_chain(self):
+        """Saves the current blockchain to the persistent file."""
+        with open(self.blockchain_file, 'w') as file:
+            json.dump({'chain': self.chain}, file)
 
     def create_block(self, proof, previous_hash):
         block = {
@@ -21,19 +34,23 @@ class Blockchain:
             'timestamp': str(datetime.datetime.now()),
             'proof': proof,
             'previous_hash': previous_hash,
-            'transactions': self.transactions
+            'transactions': self.transactions  # Store only in-memory transactions
         }
         self.chain.append(block)
-        self.transactions = []
+        self.transactions = []  # Reset transactions in memory
+        self.save_chain()  # Save the updated chain to the file
         return block
 
-    # maybe should rename this function to get last block
+    def get_chain(self):
+        """Returns the persistent blockchain from the file."""
+        return self.chain  # The chain is loaded from the file in self.load_chain()
+
     def get_previous_block(self):
-        return self.chain[-1]
+        return self.chain[-1] if self.chain else None
 
     def proof_of_work(self, previous_proof):
         new_proof = 1
-        check_proof = False  # maybe rename this to approve proof
+        check_proof = False
         while check_proof is False:
             hash_operation = hashlib.sha256(str(new_proof ** 2 - previous_proof ** 2).encode()).hexdigest()
             if hash_operation[:4] == '0000':
@@ -71,7 +88,7 @@ class Blockchain:
         })
 
         previous_block = self.get_previous_block()
-        return previous_block['index'] + 1
+        return previous_block['index'] + 1 if previous_block else 1
 
     def add_reward_transaction(self, receiver, amount):
         """Adds a reward transaction without requiring a signature."""
@@ -83,9 +100,8 @@ class Blockchain:
         }
         self.transactions.append(transaction)
 
-        # Use get_previous_block() instead of get_last_block()
         previous_block = self.get_previous_block()
-        return previous_block['index'] + 1  # Return the index where the transaction will be added
+        return previous_block['index'] + 1 if previous_block else 1
 
     def add_node(self, address):
         parsed_url = urlparse(address)
@@ -105,5 +121,6 @@ class Blockchain:
                     longest_chain = chain
         if longest_chain:
             self.chain = longest_chain
+            self.save_chain()  # Save the new longest chain to the file
             return True
         return False

@@ -1,22 +1,22 @@
 [
     {
         "index": 1,
-        "timestamp": "2025-02-06 09:39:39.924927",
+        "timestamp": "2025-02-06 12:33:34.395813",
         "proof": 1,
         "previous_hash": "0",
         "transactions": []
     },
     {
         "index": 2,
-        "timestamp": "2025-02-06 09:43:02.146158",
+        "timestamp": "2025-02-06 12:34:23.797816",
         "proof": 533,
-        "previous_hash": "c983d717d080d91ea0eaed3f6c932d6c7235484f85179070f9d6912af280e3a1",
+        "previous_hash": "5232bbe111239b0499dc9f01ea5d8c9dc4d485a8ea0a21ca5ea301e5c935c634",
         "transactions": [
             {
                 "sender": "-----BEGIN PUBLIC KEY-----MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEoBTsWogc9iv95YbCQVrdRcKShMEcgkQqAW6dq2re1kMMt/VcdU+h5R9cEOAVpD7oIgs/Xyn30w8lHU8ZnNjk+Q==-----END PUBLIC KEY-----",
                 "receiver": "-----BEGIN PUBLIC KEY-----MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEoBTsWogc9iv95YbCQVrdRcKShMEcgkQqAW6dq2re1kMMt/VcdU+h5R9cEOAVpD7oIgs/Xyn30w8lHU8ZnNjk+Q==-----END PUBLIC KEY-----",
                 "amount": "100",
-                "signature": "MEUCIQC7GaJ7lZIhdsY3CdJh8X/tj8pKuWQ7AZFXo8VFNbWCOgIge5Bz/sc9xyohmD8xQHxQ1v+UsucseJ9UYgShFNRhSY0="
+                "signature": "MEUCIFaKI7Oz/h0Dwv+mLxTk2NpjjO/EF3MkSwQuIX+LsU2EAiEAzk+yn55tyik1FuXwPrIKEEruZWEnYNSjKW5umPVWWlc="
             },
             {
                 "sender": "BLOCK_REWARD",
@@ -28,47 +28,15 @@
     },
     {
         "index": 3,
-        "timestamp": "2025-02-06 09:43:12.282216",
+        "timestamp": "2025-02-06 12:34:38.576127",
         "proof": 45293,
-        "previous_hash": "a05c7e78c9df64fde8b903387ff7a915d3246c9cb7bfc26a9c700d98feddd732",
+        "previous_hash": "d299aa3043c31f6c532d1b448a4435a685399ec418ea8c9cc907d8c2b5eb1ba6",
         "transactions": [
             {
                 "sender": "-----BEGIN PUBLIC KEY-----MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEoBTsWogc9iv95YbCQVrdRcKShMEcgkQqAW6dq2re1kMMt/VcdU+h5R9cEOAVpD7oIgs/Xyn30w8lHU8ZnNjk+Q==-----END PUBLIC KEY-----",
                 "receiver": "-----BEGIN PUBLIC KEY-----MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEoBTsWogc9iv95YbCQVrdRcKShMEcgkQqAW6dq2re1kMMt/VcdU+h5R9cEOAVpD7oIgs/Xyn30w8lHU8ZnNjk+Q==-----END PUBLIC KEY-----",
                 "amount": "100",
-                "signature": "MEUCIQCuFYuucFSgfWuh6hicCSvk2+TkL9bu7iZWdarge2tTswIgWmpuL4xHDQGKln66AXHnpDBNMbNeL2vB6AEiKYrljoU="
-            },
-            {
-                "sender": "BLOCK_REWARD",
-                "receiver": "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEoBTsWogc9iv95YbCQVrdRcKShMEcgkQq\nAW6dq2re1kMMt/VcdU+h5R9cEOAVpD7oIgs/Xyn30w8lHU8ZnNjk+Q==\n-----END PUBLIC KEY-----\n",
-                "amount": 1,
-                "signature": null
-            }
-        ]
-    },
-    {
-        "index": 4,
-        "timestamp": "2025-02-06 12:03:36.680951",
-        "proof": 21391,
-        "previous_hash": "d60e3ab8fb1c35813e03605535071e7a4c4e3e19435bd85c61924a18d647b1dd",
-        "transactions": [
-            {
-                "sender": "-----BEGIN PUBLIC KEY-----MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEoBTsWogc9iv95YbCQVrdRcKShMEcgkQqAW6dq2re1kMMt/VcdU+h5R9cEOAVpD7oIgs/Xyn30w8lHU8ZnNjk+Q==-----END PUBLIC KEY-----",
-                "receiver": "-----BEGIN PUBLIC KEY-----MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEoBTsWogc9iv95YbCQVrdRcKShMEcgkQqAW6dq2re1kMMt/VcdU+h5R9cEOAVpD7oIgs/Xyn30w8lHU8ZnNjk+Q==-----END PUBLIC KEY-----",
-                "amount": "100",
-                "signature": "MEUCIQC8FpIGdVtsdeGTiBfSgkKCn4BpcPV24HH0/68T+X/jvwIgQ/c00aLwsrOo4BIkiUi+XP66StgnYddwhR1Xak6V+bc="
-            },
-            {
-                "sender": "-----BEGIN PUBLIC KEY-----MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEoBTsWogc9iv95YbCQVrdRcKShMEcgkQqAW6dq2re1kMMt/VcdU+h5R9cEOAVpD7oIgs/Xyn30w8lHU8ZnNjk+Q==-----END PUBLIC KEY-----",
-                "receiver": "-----BEGIN PUBLIC KEY-----MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEoBTsWogc9iv95YbCQVrdRcKShMEcgkQqAW6dq2re1kMMt/VcdU+h5R9cEOAVpD7oIgs/Xyn30w8lHU8ZnNjk+Q==-----END PUBLIC KEY-----",
-                "amount": "100",
-                "signature": "MEUCIG2+ctVcrbmWTeiM/4UIBYSYtaXZ0ljQLT2WUfEVVooCAiEAwbSb3NqtH1/dmUkYBnKPz4Ccwx5CXxnsvODBrA/2j8M="
-            },
-            {
-                "sender": "-----BEGIN PUBLIC KEY-----MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEoBTsWogc9iv95YbCQVrdRcKShMEcgkQqAW6dq2re1kMMt/VcdU+h5R9cEOAVpD7oIgs/Xyn30w8lHU8ZnNjk+Q==-----END PUBLIC KEY-----",
-                "receiver": "-----BEGIN PUBLIC KEY-----MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEoBTsWogc9iv95YbCQVrdRcKShMEcgkQqAW6dq2re1kMMt/VcdU+h5R9cEOAVpD7oIgs/Xyn30w8lHU8ZnNjk+Q==-----END PUBLIC KEY-----",
-                "amount": "100",
-                "signature": "MEUCIQD3RFe4bNdSHj6mV7gl92AVAnWfQi8+keCOGpd0R8G+SgIgNcerCKmZeUv3ersGbsRYKENgqCxuhW9OFCT8VwxoXZU="
+                "signature": "MEYCIQDqhROLkafmt/OWEpnvr9Sl1GR8KPWytD+QyRy2Rdz8aQIhAKOpQVPZZqFhi4Q5WqAXmJ7q/zyXNICOjAJTHcyDPmyI"
             },
             {
                 "sender": "BLOCK_REWARD",
