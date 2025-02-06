@@ -243,7 +243,16 @@
         const signature = await signTransaction(sender, receiver, amount);
 
         if (!signature) {
-            alert("Transaction signing failed!");
+            //alert("Transaction signing failed!");
+            Toastify({
+                text: "Transaction signing failed!",
+                duration: 3000, // Time in milliseconds
+                close: true, // Show close button
+                gravity: "top", // Position: "top" or "bottom"
+                position: "right", // Position: "left", "center", or "right"
+                backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)", // Custom background
+            }).showToast();
+
             return;
         }
 
@@ -255,13 +264,31 @@
         })
         .then(response => response.json())
         .then(data => {
-            alert(data.message);
+            //alert(data.message);
+            Toastify({
+                text: data.message,
+                duration: 3000, // Time in milliseconds
+                close: true, // Show close button
+                gravity: "top", // Position: "top" or "bottom"
+                position: "right", // Position: "left", "center", or "right"
+                backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)", // Custom background
+            }).showToast()
 
             // Clear receiver and amount fields after successful transaction
             document.getElementById('receiver').value = '';
             document.getElementById('amount').value = '';
         })
-        .catch(error => alert("Transaction failed: " + error.message));
+        .catch(error =>
+            Toastify({
+                text: "Transaction failed: " + error.message,
+                duration: 3000, // Time in milliseconds
+                close: true, // Show close button
+                gravity: "top", // Position: "top" or "bottom"
+                position: "right", // Position: "left", "center", or "right"
+                backgroundColor: "linear-gradient(to right, #ff4b4b, #ff0000)", // Red gradient background
+            }).showToast()
+            //alert("Transaction failed: " + error.message)
+        );
     });
 
     document.getElementById('mineBlock').addEventListener('click', async function () {
@@ -283,10 +310,26 @@
             });
 
             const data = await mineResponse.json();
-            alert(data.message);
+            //alert(data.message);
+            Toastify({
+                text: data.message,
+                duration: 3000, // Time in milliseconds
+                close: true, // Show close button
+                gravity: "top", // Position: "top" or "bottom"
+                position: "right", // Position: "left", "center", or "right"
+                backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)", // Custom background
+            }).showToast()
 
         } catch (error) {
-            alert("Mining failed: " + error.message);
+            //alert("Mining failed: " + error.message);
+            Toastify({
+                text: "Mining failed: " + error.message,
+                duration: 3000, // Time in milliseconds
+                close: true, // Show close button
+                gravity: "top", // Position: "top" or "bottom"
+                position: "right", // Position: "left", "center", or "right"
+                backgroundColor: "linear-gradient(to right, #ff4b4b, #ff0000)", // Red gradient background
+            }).showToast()
         }
     });
 
@@ -296,10 +339,25 @@
             if (!response.ok) throw new Error("Failed to verify blockchain");
 
             const data = await response.json();
-            alert(data.message); // Display the response message in an alert
-
+            //alert(data.message); // Display the response message in an alert
+            Toastify({
+                text: data.message,
+                duration: 3000, // Time in milliseconds
+                close: true, // Show close button
+                gravity: "top", // Position: "top" or "bottom"
+                position: "right", // Position: "left", "center", or "right"
+                backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)", // Custom background
+            }).showToast()
         } catch (error) {
-            alert("Chain verification failed: " + error.message);
+            //alert("Chain verification failed: " + error.message);
+            Toastify({
+                text: "Chain verification failed: " + error.message,
+                duration: 3000, // Time in milliseconds
+                close: true, // Show close button
+                gravity: "top", // Position: "top" or "bottom"
+                position: "right", // Position: "left", "center", or "right"
+                backgroundColor: "linear-gradient(to right, #ff4b4b, #ff0000)", // Red gradient background
+            }).showToast()
         }
     });
 
