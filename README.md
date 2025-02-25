@@ -36,13 +36,19 @@ Here are some screenshots showcasing Africoin:
 5. Blockchain Overview:
    ![Blockchain Overview](screenshots/screenshot_4.png)
 
-
 ## Meet the Developer
 ### Dhia Eddine Nabli
 - **Founder & Developer**
 - Passionate about innovation and blockchain technology
 - Committed to making cryptocurrency accessible for African users
 
+## Implementation Details
+Africoin's blockchain is built and implemented entirely from scratch in Python, without relying on an existing blockchain network. This ensures full control over the protocol and optimizations tailored for African communities.
+
+## Live Demo
+The Africoin application is deployed and accessible for use through the following link:
+
+🔗 [Africoin Live App](https://dnabli007.pythonanywhere.com/)
 
 ---
 _Africoin - Empowering Africa through Blockchain_ 🚀
